@@ -52,7 +52,19 @@ jobs:
           cache-dependency-path: ${{ steps.frontend.outputs.dir }}/package-lock.json
 
       - name: Install Python dependencies
-        run: uv sync --group dev
+        shell: pwsh
+        run: |
+          $toml = Get-Content pyproject.toml -Raw -ErrorAction SilentlyContinue
+          if ($toml -match '\[dependency-groups\]\s*$' -or $toml -match '\[dependency-groups\]\S') {
+            Write-Host "Using uv sync --group dev (dependency-groups)"
+            uv sync --group dev
+          } elseif ($toml -match '\[project\.optional-dependencies\]') {
+            Write-Host "Using uv sync --extra dev (optional-dependencies)"
+            uv sync --extra dev
+          } else {
+            Write-Host "No dev deps detected, running uv sync without group/extra"
+            uv sync
+          }
 
       - name: Verify Ruff
         shell: pwsh
