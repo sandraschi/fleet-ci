@@ -107,7 +107,14 @@ jobs:
 
       - name: Pytest
         if: hashFiles('tests/**') != ''
-        run: uv run python -m pytest tests/ -q --tb=short --no-cov
+        shell: pwsh
+        run: |
+          $toml = Get-Content pyproject.toml -Raw -ErrorAction SilentlyContinue
+          if ($toml -match 'pytest-cov') {
+            uv run python -m pytest tests/ -q --tb=short --no-cov
+          } else {
+            uv run python -m pytest tests/ -q --tb=short
+          }
 
       - name: ty typecheck
         continue-on-error: true
