@@ -110,7 +110,7 @@ jobs:
         shell: pwsh
         run: |
           $toml = Get-Content pyproject.toml -Raw -ErrorAction SilentlyContinue
-          if ($toml -match 'pytest-cov') {
+          if ($toml -match '["'']pytest-cov(?:[<>=!~\[][^"'']*)?["'']') {
             uv run python -m pytest tests/ -q --tb=short --no-cov
           } else {
             uv run python -m pytest tests/ -q --tb=short
@@ -122,7 +122,7 @@ jobs:
         run: |
           $toml = Get-Content pyproject.toml -Raw -ErrorAction SilentlyContinue
           if (-not $toml) { Write-Host "skip: no pyproject.toml"; exit 0 }
-          if ($toml -notmatch '(?m)^\s*"?ty"?\s*[,\]]' -and $toml -notmatch 'ty>=') {
+          if ($toml -notmatch '["'']ty(?:[<>=!~\[][^"'']*)?["'']') {
             Write-Host "skip: ty not in dev dependencies"
             exit 0
           }
