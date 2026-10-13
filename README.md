@@ -1,4 +1,4 @@
-# Fleet CI — Reusable GitHub Actions Workflows
+﻿# Fleet CI — Reusable GitHub Actions Workflows
 
 Centralized CI workflows for the [sandraschi MCP fleet](https://github.com/sandraschi).
 
@@ -66,3 +66,31 @@ dev = [
     "pytest>=8",
 ]
 ```
+
+## Scripts
+
+Standalone fleet-wide tooling, separate from the reusable CI workflows above.
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/competitor-scan.ps1` | Scans the official MCP registry (registry.modelcontextprotocol.io) for a keyword, pulls competitor READMEs, and writes a feature-comparison scaffold against one of our own repos. Read-only, no LLM calls. |
+
+### competitor-scan.ps1
+
+```powershell
+.\scripts\competitor-scan.ps1 -Keyword godot -OwnRepoPath D:\Dev\repos\godot-mcp -OutFile C:\temp\godot-competitor-scan.md
+```
+
+Queries the registry for `-Keyword`, filters to the latest version of every
+matching server, fetches each competitor's `README.md` from GitHub, and
+extracts any Highlights/Features/Tools/Comparison/Why sections via regex
+alongside the same extraction run against `-OwnRepoPath`'s own README. Output
+is a single markdown file for manual (or Claude-assisted) review -- the
+script does not judge what's worth borrowing, it just gathers the raw
+material.
+
+Requires no fleet MCP tools to run -- plain `Invoke-RestMethod` against the
+registry API and `raw.githubusercontent.com`, both of which are reliable from
+a normal PowerShell session (unlike some fetch tools, which have known
+issues against the registry domain specifically).
+
